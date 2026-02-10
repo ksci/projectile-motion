@@ -1,0 +1,25 @@
+.app {
+  min-height: 100vh;
+  padding: 20px;
+  background: #f0f0f0;
+}
+
+.app h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.app-container {
+  display: flex;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+}

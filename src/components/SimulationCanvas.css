@@ -1,0 +1,15 @@
+.simulation-canvas {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.canvas-svg {
+  background: #f9f9f9;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+}
