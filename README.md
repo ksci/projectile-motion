@@ -1,73 +1,100 @@
-# React + TypeScript + Vite
+# Projectile Motion Simulator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive web application that simulates projectile motion physics. Adjust the cannon angle and power, then fire projectiles to observe realistic parabolic trajectories.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Interactive Cannon Controls**
+  - Adjust launch angle (0-90 degrees)
+  - Adjust launch power/velocity (0-100)
+  - Fire button to launch projectiles
 
-## React Compiler
+- **Real-time Physics Simulation**
+  - Accurate projectile motion calculations using kinematic equations
+  - Visual representation of the cannon, projectile, and ground
+  - Smooth animation using requestAnimationFrame
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Visual Feedback**
+  - SVG-based canvas rendering
+  - Real-time projectile position updates
+  - Cannon barrel rotates to match selected angle
 
-## Expanding the ESLint configuration
+## How to Use
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. Adjust the **Angle** slider to set the launch angle (0-90 degrees)
+2. Adjust the **Power** slider to set the launch velocity (0-100)
+3. Click the **Fire!** button to launch the projectile
+4. Watch the projectile follow its parabolic trajectory
+5. Controls are disabled while a projectile is in flight
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Prerequisites
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js (v18 or higher recommended)
+- npm or yarn
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Start the development server
+npm run dev
 ```
+
+The app will be available at `http://localhost:5173` (or the port shown in the terminal).
+
+### Build
+
+```bash
+# Build for production
+npm run build
+```
+
+### Preview Production Build
+
+```bash
+# Preview the production build
+npm run preview
+```
+
+## Technology Stack
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **SVG** - Canvas rendering
+
+## Physics
+
+The simulator uses standard projectile motion equations:
+
+- **Horizontal position**: `x = x₀ + v₀ * cos(θ) * t`
+- **Vertical position**: `y = y₀ + v₀ * sin(θ) * t - 0.5 * g * t²`
+
+Where:
+- `v₀` = initial velocity (derived from power setting)
+- `θ` = launch angle in radians
+- `g` = gravity (500 pixels/s², scaled for visual effect)
+- `t` = elapsed time
+
+## Project Structure
+
+```
+src/
+├── App.tsx                 # Main component with physics logic
+├── components/
+│   ├── CannonControls.tsx  # Angle, power controls, and fire button
+│   └── SimulationCanvas.tsx # SVG canvas rendering
+└── ...
+```
+
+## License
+
+This project is private and not licensed for public use.
