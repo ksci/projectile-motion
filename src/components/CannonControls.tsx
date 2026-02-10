@@ -7,6 +7,9 @@ interface CannonControlsProps {
   onPowerChange: (power: number) => void
   onFire: () => void
   disabled?: boolean
+  projectileX?: number
+  projectileY?: number
+  isFlying?: boolean
 }
 
 export default function CannonControls({
@@ -16,6 +19,9 @@ export default function CannonControls({
   onPowerChange,
   onFire,
   disabled = false,
+  projectileX,
+  projectileY,
+  isFlying = false,
 }: CannonControlsProps) {
   return (
     <div className="cannon-controls">
@@ -58,6 +64,24 @@ export default function CannonControls({
       >
         Fire!
       </button>
+
+      <div className={`position-display ${isFlying ? 'active' : ''}`}>
+        <h3>Projectile Position</h3>
+        <div className="position-values">
+          <div className="position-item">
+            <span className="position-label">X:</span>
+            <span className="position-value">
+              {projectileX !== undefined ? projectileX.toFixed(1) : '—'}
+            </span>
+          </div>
+          <div className="position-item">
+            <span className="position-label">Y:</span>
+            <span className="position-value">
+              {projectileY !== undefined ? projectileY.toFixed(1) : '—'}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
