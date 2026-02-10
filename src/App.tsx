@@ -26,6 +26,8 @@ function App() {
   const startTimeRef = useRef<number | null>(null)
   const initialVelocityRef = useRef<number>(0)
   const angleRadRef = useRef<number>(0)
+  const launchCannonTipXRef = useRef<number>(initialX)
+  const launchCannonTipYRef = useRef<number>(initialY)
 
   useEffect(() => {
     if (isFlying) {
@@ -93,12 +95,32 @@ function App() {
     const startX = cannonX + barrelLength * Math.cos(angleRad)
     const startY = groundY - barrelLength * Math.sin(angleRad)
 
+    // Store cannon tip position at launch for coordinate transformation
+    launchCannonTipXRef.current = startX
+    launchCannonTipYRef.current = startY
+
     // Reset projectile position to end of cannon barrel
     setProjectileX(startX)
     setProjectileY(startY)
     startTimeRef.current = null
     setIsFlying(true)
   }
+
+  // Calculate cannon tip position (for coordinate transformation)
+  // Use launch position if flying, otherwise use current angle
+  const angleRad = (angle * Math.PI) / 180
+  const currentCannonTipX = cannonX + barrelLength * Math.cos(angleRad)
+  const currentCannonTipY = groundY - barrelLength * Math.sin(angleRad)
+  
+  // Use launch position if projectile is flying, otherwise use current position
+  const cannonTipX = isFlying ? launchCannonTipXRef.current : currentCannonTipX
+  const cannonTipY = isFlying ? launchCannonTipYRef.current : currentCannonTipY
+
+  // Transform coordinates: ground is y=0, cannon tip is x=0
+  // x_scaled = x_pixel - cannonTipX
+  // y_scaled = groundY - y_pixel (y increases upward in physics, downward in screen)
+  const scaledX = projectileX - cannonTipX
+  const scaledY = groundY - projectileY
 
   return (
     <div className="app">
@@ -111,6 +133,9 @@ function App() {
           onPowerChange={setPower}
           onFire={handleFire}
           disabled={isFlying}
+          projectileX={scaledX}
+          projectileY={scaledY}
+          isFlying={isFlying}
         />
         <SimulationCanvas
           angle={angle}
