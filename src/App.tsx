@@ -15,7 +15,7 @@ function App() {
   const [projectileRadius, setRadius] = useState(6)
   const [timeElapsed, setElapsed] = useState(0)
   const [showPath, setShowPath] = useState(false)
-  const [pathPoints, setPathPoints] = useState<Array<{ x: number; y: number }>>([])
+  const [pathPoints, setPathPoints] = useState<Array<{ x: number; y: number; xVelocity: number; yVelocity: number; time: number }>>([])
   
   // Initialize projectile at end of cannon barrel
   const initialAngleRad = (45 * Math.PI) / 180
@@ -54,23 +54,26 @@ function App() {
         const x = startX + v0 * Math.cos(angleRad) * elapsed
         const y = startY - (v0 * Math.sin(angleRad) * elapsed - 0.5 * g * elapsed * elapsed)
 
+        // Calculate velocities at this point
+        const xVelocity = v0 * Math.cos(angleRad) // Horizontal velocity is constant
+        const yVelocity = v0 * Math.sin(angleRad) - g * elapsed // Vertical velocity changes due to gravity
+
         setProjectileX(x)
         setProjectileY(y)
         
-        // Add point to path if tracing is enabled
-        if (showPath) {
-          setPathPoints(prev => [...prev, { x, y }])
-        }
+        // Always add point to path regardless of showPath setting, users can enable it after the fact to see the path
+        setPathPoints(prev => [...prev, { x, y, xVelocity, yVelocity, time: elapsed }])
 
         // Check if projectile has hit the ground (account for projectile radius)
         if (y + projectileRadius >= groundY) {
           // Projectile has landed
           setProjectileX(x)
           setProjectileY(groundY)
-          // Add final point to path if tracing is enabled
-          if (showPath) {
-            setPathPoints(prev => [...prev, { x, y: groundY }])
-          }
+          // Calculate final velocities at landing
+          const finalXVelocity = v0 * Math.cos(angleRad)
+          const finalYVelocity = v0 * Math.sin(angleRad) - g * elapsed
+          // Always add final point to path regardless of showPath setting
+          setPathPoints(prev => [...prev, { x, y: groundY, xVelocity: finalXVelocity, yVelocity: finalYVelocity, time: elapsed }])
           setIsFlying(false)
           startTimeRef.current = null
           if (animationFrameRef.current) {
@@ -115,8 +118,11 @@ function App() {
     // Reset projectile position to end of cannon barrel
     setProjectileX(startX)
     setProjectileY(startY)
-    // Reset path points when firing
-    setPathPoints([{ x: startX, y: startY }])
+    // Calculate initial velocities
+    const initialXVelocity = velocity * Math.cos(angleRad)
+    const initialYVelocity = velocity * Math.sin(angleRad)
+    // Reset path points when firing (initial point at t=0)
+    setPathPoints([{ x: startX, y: startY, xVelocity: initialXVelocity, yVelocity: initialYVelocity, time: 0 }])
     startTimeRef.current = null
     setIsFlying(true)
   }

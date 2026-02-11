@@ -7,7 +7,7 @@ interface SimulationCanvasProps {
   isFlying: boolean
   radius: number
   showPath?: boolean
-  pathPoints?: Array<{ x: number; y: number }>
+  pathPoints?: Array<{ x: number; y: number; xVelocity: number; yVelocity: number; time: number }>
 }
 
 export default function SimulationCanvas({
