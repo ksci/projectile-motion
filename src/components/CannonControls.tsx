@@ -13,6 +13,8 @@ interface CannonControlsProps {
   projectileY?: number
   timeInSeconds?: number,
   isFlying?: boolean
+  showPath?: boolean
+  onShowPathChange?: (show: boolean) => void
 }
 
 export default function CannonControls({
@@ -28,6 +30,8 @@ export default function CannonControls({
   projectileY,
   timeInSeconds,
   isFlying = false,
+  showPath = false,
+  onShowPathChange,
 }: CannonControlsProps) {
   return (
     <div className="cannon-controls">
@@ -77,6 +81,18 @@ export default function CannonControls({
           onChange={(e) => onRadiusChange(Number(e.target.value))}
           disabled={disabled}
         />
+      </div>
+
+      <div className="control-group">
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={showPath}
+            onChange={(e) => onShowPathChange?.(e.target.checked)}
+            disabled={disabled}
+          />
+          <span>Show Path Trace</span>
+        </label>
       </div>
 
       <button 

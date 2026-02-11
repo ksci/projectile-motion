@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import './SimulationCanvas.css'
 
 interface SimulationCanvasProps {
@@ -6,6 +7,8 @@ interface SimulationCanvasProps {
   projectileY: number
   isFlying: boolean
   radius: number
+  showPath?: boolean
+  pathPoints?: Array<{ x: number; y: number; xVelocity: number; yVelocity: number; time: number }>
 }
 
 export default function SimulationCanvas({
@@ -14,7 +17,11 @@ export default function SimulationCanvas({
   projectileY,
   isFlying,
   radius,
+  showPath = false,
+  pathPoints = [],
 }: SimulationCanvasProps) {
+  const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null)
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null)
   // Canvas dimensions
   const canvasWidth = 800
   const canvasHeight = 600
@@ -68,6 +75,78 @@ export default function SimulationCanvas({
           strokeLinecap="round"
         />
 
+        {/* Path trace */}
+        {showPath && pathPoints.length > 1 && (
+          <g>
+            {/* Visible path line */}
+            <polyline
+              points={pathPoints.map(p => `${p.x},${p.y}`).join(' ')}
+              fill="none"
+              stroke="#888"
+              strokeWidth="2"
+              strokeDasharray="4,4"
+              opacity="0.6"
+            />
+            {/* Interactive hover areas for each path segment */}
+            {pathPoints.map((point, index) => {
+              if (index === 0) return null
+              const prevPoint = pathPoints[index - 1]
+              const midX = (prevPoint.x + point.x) / 2
+              const midY = (prevPoint.y + point.y) / 2
+              
+              return (
+                <line
+                  key={index}
+                  x1={prevPoint.x}
+                  y1={prevPoint.y}
+                  x2={point.x}
+                  y2={point.y}
+                  stroke="transparent"
+                  strokeWidth="100"
+                  onMouseEnter={(e) => {
+                    setHoveredPointIndex(index)
+                    const svg = e.currentTarget.ownerSVGElement
+                    if (svg) {
+                      const point = svg.createSVGPoint()
+                      point.x = midX
+                      point.y = midY
+                      const screenCTM = svg.getScreenCTM()
+                      if (screenCTM) {
+                        const screenPoint = point.matrixTransform(screenCTM)
+                        setTooltipPosition({
+                          x: screenPoint.x,
+                          y: screenPoint.y
+                        })
+                      }
+                    }
+                  }}
+                  onMouseMove={(e) => {
+                    const svg = e.currentTarget.ownerSVGElement
+                    if (svg) {
+                      const point = svg.createSVGPoint()
+                      point.x = midX
+                      point.y = midY
+                      const screenCTM = svg.getScreenCTM()
+                      if (screenCTM) {
+                        const screenPoint = point.matrixTransform(screenCTM)
+                        setTooltipPosition({
+                          x: screenPoint.x,
+                          y: screenPoint.y
+                        })
+                      }
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredPointIndex(null)
+                    setTooltipPosition(null)
+                  }}
+                  style={{ cursor: 'pointer' }}
+                />
+              )
+            })}
+          </g>
+        )}
+
         {/* Projectile - always show if position is set, or when flying */}
         {(isFlying || (projectileX > 0 && projectileY > 0)) && (
           <circle
@@ -78,6 +157,41 @@ export default function SimulationCanvas({
           />
         )}
       </svg>
+      
+      {/* Tooltip */}
+      {showPath && hoveredPointIndex !== null && tooltipPosition && pathPoints[hoveredPointIndex] && (
+        <div
+          className="path-tooltip"
+          style={{
+            left: `${tooltipPosition.x}px`,
+            top: `${tooltipPosition.y}px`,
+          }}
+        >
+          <div className="tooltip-content">
+            <div className="tooltip-header">Path Point Data</div>
+            <div className="tooltip-row">
+              <span className="tooltip-label">X:</span>
+              <span className="tooltip-value">{pathPoints[hoveredPointIndex].x.toFixed(1)}</span>
+            </div>
+            <div className="tooltip-row">
+              <span className="tooltip-label">Y:</span>
+              <span className="tooltip-value">{pathPoints[hoveredPointIndex].y.toFixed(1)}</span>
+            </div>
+            <div className="tooltip-row">
+              <span className="tooltip-label">Vx:</span>
+              <span className="tooltip-value">{pathPoints[hoveredPointIndex].xVelocity.toFixed(1)}</span>
+            </div>
+            <div className="tooltip-row">
+              <span className="tooltip-label">Vy:</span>
+              <span className="tooltip-value">{pathPoints[hoveredPointIndex].yVelocity.toFixed(1)}</span>
+            </div>
+            <div className="tooltip-row">
+              <span className="tooltip-label">Time:</span>
+              <span className="tooltip-value">{pathPoints[hoveredPointIndex].time.toFixed(2)}s</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
