@@ -3,24 +3,30 @@ import './CannonControls.css'
 interface CannonControlsProps {
   angle: number
   power: number
+  radius: number
   onAngleChange: (angle: number) => void
   onPowerChange: (power: number) => void
+  onRadiusChange: (power: number) => void
   onFire: () => void
   disabled?: boolean
   projectileX?: number
   projectileY?: number
+  timeInSeconds?: number,
   isFlying?: boolean
 }
 
 export default function CannonControls({
   angle,
   power,
+  radius,
   onAngleChange,
   onPowerChange,
+  onRadiusChange,
   onFire,
   disabled = false,
   projectileX,
   projectileY,
+  timeInSeconds,
   isFlying = false,
 }: CannonControlsProps) {
   return (
@@ -57,6 +63,22 @@ export default function CannonControls({
         />
       </div>
 
+      
+      <div className="control-group">
+        <label htmlFor="radius">
+          Radius: {radius}
+        </label>
+        <input
+          id="radius"
+          type="range"
+          min="2"
+          max="50"
+          value={radius}
+          onChange={(e) => onRadiusChange(Number(e.target.value))}
+          disabled={disabled}
+        />
+      </div>
+
       <button 
         onClick={onFire} 
         disabled={disabled}
@@ -78,6 +100,12 @@ export default function CannonControls({
             <span className="position-label">Y:</span>
             <span className="position-value">
               {projectileY !== undefined ? projectileY.toFixed(1) : '—'}
+            </span>
+          </div>
+          <div className="position-item">
+            <span className="position-label">elapsed:</span>
+            <span className="position-value">
+              {timeInSeconds !== undefined ? `${timeInSeconds.toFixed(2)} s` : '—'}
             </span>
           </div>
         </div>

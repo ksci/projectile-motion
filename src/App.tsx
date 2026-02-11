@@ -12,6 +12,8 @@ function App() {
 
   const [angle, setAngle] = useState(45)
   const [power, setPower] = useState(50)
+  const [projectileRadius, setRadius] = useState(6)
+  const [timeElapsed, setElapsed] = useState(0)
   
   // Initialize projectile at end of cannon barrel
   const initialAngleRad = (45 * Math.PI) / 180
@@ -37,6 +39,7 @@ function App() {
         }
 
         const elapsed = (currentTime - startTimeRef.current) / 1000 // Convert to seconds
+        setElapsed(elapsed)
         const v0 = initialVelocityRef.current
         const angleRad = angleRadRef.current
         const g = 500 // Gravity in pixels/s² (scaled for visual effect)
@@ -53,7 +56,6 @@ function App() {
         setProjectileY(y)
 
         // Check if projectile has hit the ground (account for projectile radius)
-        const projectileRadius = 6
         if (y + projectileRadius >= groundY) {
           // Projectile has landed
           setProjectileX(x)
@@ -129,12 +131,15 @@ function App() {
         <CannonControls
           angle={angle}
           power={power}
+          radius={projectileRadius}
           onAngleChange={setAngle}
           onPowerChange={setPower}
+          onRadiusChange={setRadius}
           onFire={handleFire}
           disabled={isFlying}
           projectileX={scaledX}
           projectileY={scaledY}
+          timeInSeconds={timeElapsed}
           isFlying={isFlying}
         />
         <SimulationCanvas
@@ -142,6 +147,7 @@ function App() {
           projectileX={projectileX}
           projectileY={projectileY}
           isFlying={isFlying}
+          radius={projectileRadius}
         />
       </div>
     </div>
