@@ -5,6 +5,7 @@ interface SimulationCanvasProps {
   projectileX: number
   projectileY: number
   isFlying: boolean
+  radius: number
 }
 
 export default function SimulationCanvas({
@@ -12,6 +13,7 @@ export default function SimulationCanvas({
   projectileX,
   projectileY,
   isFlying,
+  radius,
 }: SimulationCanvasProps) {
   // Canvas dimensions
   const canvasWidth = 800
@@ -71,7 +73,7 @@ export default function SimulationCanvas({
           <circle
             cx={projectileX}
             cy={projectileY}
-            r="6"
+            r={radius}
             fill="#ff4444"
           />
         )}
