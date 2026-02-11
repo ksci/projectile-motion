@@ -14,6 +14,8 @@ function App() {
   const [power, setPower] = useState(50)
   const [projectileRadius, setRadius] = useState(6)
   const [timeElapsed, setElapsed] = useState(0)
+  const [showPath, setShowPath] = useState(false)
+  const [pathPoints, setPathPoints] = useState<Array<{ x: number; y: number }>>([])
   
   // Initialize projectile at end of cannon barrel
   const initialAngleRad = (45 * Math.PI) / 180
@@ -54,12 +56,21 @@ function App() {
 
         setProjectileX(x)
         setProjectileY(y)
+        
+        // Add point to path if tracing is enabled
+        if (showPath) {
+          setPathPoints(prev => [...prev, { x, y }])
+        }
 
         // Check if projectile has hit the ground (account for projectile radius)
         if (y + projectileRadius >= groundY) {
           // Projectile has landed
           setProjectileX(x)
           setProjectileY(groundY)
+          // Add final point to path if tracing is enabled
+          if (showPath) {
+            setPathPoints(prev => [...prev, { x, y: groundY }])
+          }
           setIsFlying(false)
           startTimeRef.current = null
           if (animationFrameRef.current) {
@@ -104,6 +115,8 @@ function App() {
     // Reset projectile position to end of cannon barrel
     setProjectileX(startX)
     setProjectileY(startY)
+    // Reset path points when firing
+    setPathPoints([{ x: startX, y: startY }])
     startTimeRef.current = null
     setIsFlying(true)
   }
@@ -112,11 +125,9 @@ function App() {
   // Use launch position if flying, otherwise use current angle
   const angleRad = (angle * Math.PI) / 180
   const currentCannonTipX = cannonX + barrelLength * Math.cos(angleRad)
-  const currentCannonTipY = groundY - barrelLength * Math.sin(angleRad)
   
   // Use launch position if projectile is flying, otherwise use current position
   const cannonTipX = isFlying ? launchCannonTipXRef.current : currentCannonTipX
-  const cannonTipY = isFlying ? launchCannonTipYRef.current : currentCannonTipY
 
   // Transform coordinates: ground is y=0, cannon tip is x=0
   // x_scaled = x_pixel - cannonTipX
@@ -141,6 +152,8 @@ function App() {
           projectileY={scaledY}
           timeInSeconds={timeElapsed}
           isFlying={isFlying}
+          showPath={showPath}
+          onShowPathChange={setShowPath}
         />
         <SimulationCanvas
           angle={angle}
@@ -148,6 +161,8 @@ function App() {
           projectileY={projectileY}
           isFlying={isFlying}
           radius={projectileRadius}
+          showPath={showPath}
+          pathPoints={pathPoints}
         />
       </div>
     </div>

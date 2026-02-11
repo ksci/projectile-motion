@@ -6,6 +6,8 @@ interface SimulationCanvasProps {
   projectileY: number
   isFlying: boolean
   radius: number
+  showPath?: boolean
+  pathPoints?: Array<{ x: number; y: number }>
 }
 
 export default function SimulationCanvas({
@@ -14,6 +16,8 @@ export default function SimulationCanvas({
   projectileY,
   isFlying,
   radius,
+  showPath = false,
+  pathPoints = [],
 }: SimulationCanvasProps) {
   // Canvas dimensions
   const canvasWidth = 800
@@ -67,6 +71,18 @@ export default function SimulationCanvas({
           strokeWidth="8"
           strokeLinecap="round"
         />
+
+        {/* Path trace */}
+        {showPath && pathPoints.length > 1 && (
+          <polyline
+            points={pathPoints.map(p => `${p.x},${p.y}`).join(' ')}
+            fill="none"
+            stroke="#888"
+            strokeWidth="2"
+            strokeDasharray="4,4"
+            opacity="0.6"
+          />
+        )}
 
         {/* Projectile - always show if position is set, or when flying */}
         {(isFlying || (projectileX > 0 && projectileY > 0)) && (
