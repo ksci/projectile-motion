@@ -33,6 +33,52 @@ function App() {
   const launchCannonTipXRef = useRef<number>(initialX)
   const launchCannonTipYRef = useRef<number>(initialY)
 
+  // Keyboard controls for angle adjustment
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only adjust angle when not flying
+      if (isFlying) return
+
+      const angleStep = 2 // Adjust angle by step per keypress
+      const powerStep = 2 // Adjust power by step per keypress
+      let newAngle = angle
+      let newPower = power
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          // Increase angle
+          newAngle = Math.min(90, angle + angleStep)
+          setAngle(newAngle)
+          event.preventDefault()
+          break
+        case 'ArrowUp':
+          // Increase power
+          newPower = Math.min(100, power + powerStep)
+          setPower(newPower)
+          event.preventDefault()
+          break
+        case 'ArrowRight':
+          // Decrease angle
+          newAngle = Math.max(0, angle - angleStep)
+          setAngle(newAngle)
+          event.preventDefault()
+          break
+        case 'ArrowDown':
+          // Decrease power
+          newPower = Math.min(0, power - powerStep)
+          setPower(newPower)
+          event.preventDefault()
+          break
+ 
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [angle, isFlying])
+
   useEffect(() => {
     if (isFlying) {
       const animate = (currentTime: number) => {
@@ -135,11 +181,16 @@ function App() {
   // Use launch position if projectile is flying, otherwise use current position
   const cannonTipX = isFlying ? launchCannonTipXRef.current : currentCannonTipX
 
-  // Transform coordinates: ground is y=0, cannon tip is x=0
+  // Utility function to transform coordinates: ground is y=0, cannon tip is x=0
   // x_scaled = x_pixel - cannonTipX
   // y_scaled = groundY - y_pixel (y increases upward in physics, downward in screen)
-  const scaledX = projectileX - cannonTipX
-  const scaledY = groundY - projectileY
+  const transformCoordinates = (x: number, y: number, tipX: number, ground: number) => ({
+    scaledX: x - tipX,
+    scaledY: ground - y
+  })
+
+  // Transform current projectile position
+  const { scaledX, scaledY } = transformCoordinates(projectileX, projectileY, cannonTipX, groundY)
 
   return (
     <div className="app">
@@ -169,6 +220,9 @@ function App() {
           radius={projectileRadius}
           showPath={showPath}
           pathPoints={pathPoints}
+          cannonTipX={cannonTipX}
+          groundY={groundY}
+          transformCoordinates={transformCoordinates}
         />
       </div>
     </div>
