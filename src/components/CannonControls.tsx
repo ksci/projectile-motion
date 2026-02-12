@@ -4,6 +4,12 @@ interface CannonControlsProps {
   angle: number
   power: number
   radius: number
+  angleMin: number
+  angleMax: number
+  powerMin: number
+  powerMax: number
+  radiusMin: number
+  radiusMax: number
   onAngleChange: (angle: number) => void
   onPowerChange: (power: number) => void
   onRadiusChange: (power: number) => void
@@ -21,6 +27,12 @@ export default function CannonControls({
   angle,
   power,
   radius,
+  angleMin,
+  angleMax,
+  powerMin,
+  powerMax,
+  radiusMin,
+  radiusMax,
   onAngleChange,
   onPowerChange,
   onRadiusChange,
@@ -44,8 +56,8 @@ export default function CannonControls({
         <input
           id="angle"
           type="range"
-          min="0"
-          max="90"
+          min={angleMin}
+          max={angleMax}
           value={angle}
           onChange={(e) => onAngleChange(Number(e.target.value))}
           disabled={disabled}
@@ -59,8 +71,8 @@ export default function CannonControls({
         <input
           id="power"
           type="range"
-          min="0"
-          max="100"
+          min={powerMin}
+          max={powerMax}
           value={power}
           onChange={(e) => onPowerChange(Number(e.target.value))}
           disabled={disabled}
@@ -75,8 +87,8 @@ export default function CannonControls({
         <input
           id="radius"
           type="range"
-          min="2"
-          max="50"
+          min={radiusMin}
+          max={radiusMax}
           value={radius}
           onChange={(e) => onRadiusChange(Number(e.target.value))}
           disabled={disabled}

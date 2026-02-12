@@ -1,9 +1,17 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 import CannonControls from './components/CannonControls'
 import SimulationCanvas from './components/SimulationCanvas'
 
 function App() {
+  // Control limits
+  const ANGLE_MIN = 0
+  const ANGLE_MAX = 90
+  const POWER_MIN = 0
+  const POWER_MAX = 100
+  const RADIUS_MIN = 2
+  const RADIUS_MAX = 50
+
   // Canvas dimensions (matching SimulationCanvas)
   const canvasHeight = 600
   const groundY = canvasHeight - 50
@@ -33,43 +41,98 @@ function App() {
   const launchCannonTipXRef = useRef<number>(initialX)
   const launchCannonTipYRef = useRef<number>(initialY)
 
+  const handleFire = useCallback(() => {
+    if (isFlying) return // Don't fire if already flying
+
+    // Convert angle to radians
+    const angleRad = (angle * Math.PI) / 180
+    angleRadRef.current = angleRad
+
+    // Convert power to velocity (pixels per second)
+    // Scale power to a reasonable velocity range
+    const velocity = power * 8 // Adjust this multiplier to change speed
+    initialVelocityRef.current = velocity
+
+    // Calculate cannon barrel end position (where projectile starts)
+    const startX = cannonX + barrelLength * Math.cos(angleRad)
+    const startY = groundY - barrelLength * Math.sin(angleRad)
+
+    // Store cannon tip position at launch for coordinate transformation
+    launchCannonTipXRef.current = startX
+    launchCannonTipYRef.current = startY
+
+    // Reset projectile position to end of cannon barrel
+    setProjectileX(startX)
+    setProjectileY(startY)
+    // Calculate initial velocities
+    const initialXVelocity = velocity * Math.cos(angleRad)
+    const initialYVelocity = velocity * Math.sin(angleRad)
+    // Reset path points when firing (initial point at t=0)
+    setPathPoints([{ x: startX, y: startY, xVelocity: initialXVelocity, yVelocity: initialYVelocity, time: 0 }])
+    startTimeRef.current = null
+    setIsFlying(true)
+  }, [isFlying, angle, power, cannonX, groundY, barrelLength])
+
   // Keyboard controls for angle adjustment
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Only adjust angle when not flying
-      if (isFlying) return
-
       const angleStep = 2 // Adjust angle by step per keypress
       const powerStep = 2 // Adjust power by step per keypress
-      let newAngle = angle
-      let newPower = power
+      const radiusStep = 1 // Adjust radius by step per keypress
+
+      // Handle spacebar for firing (can fire even when flying is false, handleFire checks this)
+      if (event.code === 'Space' || event.key === ' ' || event.key === "Spacebar") {
+        handleFire()
+        event.preventDefault()
+        return
+      }
+
+      // Only adjust angle/power when not flying
+      if (isFlying) return
 
       switch (event.key) {
+        case '.':
+        case '>':
+          // Increase radius
+          setRadius(prevRadius => Math.min(RADIUS_MAX, prevRadius + radiusStep))
+          event.preventDefault()
+          break
+        case ',':
+        case '<':
+          // Decrease radius
+          setRadius(prevRadius => Math.max(RADIUS_MIN, prevRadius - radiusStep))
+          event.preventDefault()
+          break
         case 'ArrowLeft':
           // Increase angle
-          newAngle = Math.min(90, angle + angleStep)
-          setAngle(newAngle)
+          setAngle(prevAngle => Math.min(ANGLE_MAX, prevAngle + angleStep))
           event.preventDefault()
           break
         case 'ArrowUp':
           // Increase power
-          newPower = Math.min(100, power + powerStep)
-          setPower(newPower)
+          setPower(prevPower => Math.min(POWER_MAX, prevPower + powerStep))
           event.preventDefault()
           break
         case 'ArrowRight':
           // Decrease angle
-          newAngle = Math.max(0, angle - angleStep)
-          setAngle(newAngle)
+          setAngle(prevAngle => Math.max(ANGLE_MIN, prevAngle - angleStep))
           event.preventDefault()
           break
         case 'ArrowDown':
           // Decrease power
-          newPower = Math.min(0, power - powerStep)
-          setPower(newPower)
+          setPower(prevPower => Math.max(POWER_MIN, prevPower - powerStep))
           event.preventDefault()
           break
- 
+        case 'Enter':
+          // Toggle show path
+          setShowPath(prevShowPath => !prevShowPath)
+          event.preventDefault()
+          break
+        case 'Escape':
+          // Hide path
+          setShowPath(false)
+          event.preventDefault()
+          break
       }
     }
 
@@ -77,7 +140,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [angle, isFlying])
+  }, [isFlying, handleFire])
 
   useEffect(() => {
     if (isFlying) {
@@ -141,38 +204,6 @@ function App() {
     }
   }, [isFlying, cannonX, groundY, barrelLength])
 
-  const handleFire = () => {
-    if (isFlying) return // Don't fire if already flying
-
-    // Convert angle to radians
-    const angleRad = (angle * Math.PI) / 180
-    angleRadRef.current = angleRad
-
-    // Convert power (0-100) to velocity (pixels per second)
-    // Scale power to a reasonable velocity range
-    const velocity = power * 8 // Adjust this multiplier to change speed
-    initialVelocityRef.current = velocity
-
-    // Calculate cannon barrel end position (where projectile starts)
-    const startX = cannonX + barrelLength * Math.cos(angleRad)
-    const startY = groundY - barrelLength * Math.sin(angleRad)
-
-    // Store cannon tip position at launch for coordinate transformation
-    launchCannonTipXRef.current = startX
-    launchCannonTipYRef.current = startY
-
-    // Reset projectile position to end of cannon barrel
-    setProjectileX(startX)
-    setProjectileY(startY)
-    // Calculate initial velocities
-    const initialXVelocity = velocity * Math.cos(angleRad)
-    const initialYVelocity = velocity * Math.sin(angleRad)
-    // Reset path points when firing (initial point at t=0)
-    setPathPoints([{ x: startX, y: startY, xVelocity: initialXVelocity, yVelocity: initialYVelocity, time: 0 }])
-    startTimeRef.current = null
-    setIsFlying(true)
-  }
-
   // Calculate cannon tip position (for coordinate transformation)
   // Use launch position if flying, otherwise use current angle
   const angleRad = (angle * Math.PI) / 180
@@ -200,6 +231,12 @@ function App() {
           angle={angle}
           power={power}
           radius={projectileRadius}
+          angleMin={ANGLE_MIN}
+          angleMax={ANGLE_MAX}
+          powerMin={POWER_MIN}
+          powerMax={POWER_MAX}
+          radiusMin={RADIUS_MIN}
+          radiusMax={RADIUS_MAX}
           onAngleChange={setAngle}
           onPowerChange={setPower}
           onRadiusChange={setRadius}
