@@ -153,8 +153,8 @@ export default function SimulationCanvas({
           </g>
         )}
 
-        {/* Projectile - always show if position is set, or when flying */}
-        {(isFlying || (projectileX > 0 && projectileY > 0)) && (
+        {/* Projectile - only show when flying or path is shown */}
+        {(isFlying || showPath) && (
           <circle
             cx={projectileX}
             cy={projectileY}

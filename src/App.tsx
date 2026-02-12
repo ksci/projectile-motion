@@ -21,7 +21,7 @@ function App() {
   const [pathPoints, setPathPoints] = useState<Array<{ x: number; y: number; xVelocity: number; yVelocity: number; time: number }>>([])
   
   // Initialize projectile at end of cannon barrel
-  const initialAngleRad = (45 * Math.PI) / 180
+  const initialAngleRad = (angle * Math.PI) / 180
   const initialX = cannonX + barrelLength * Math.cos(initialAngleRad)
   const initialY = groundY - barrelLength * Math.sin(initialAngleRad)
   
