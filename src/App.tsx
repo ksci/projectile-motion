@@ -11,10 +11,11 @@ function App() {
   const groundY = canvasHeight - 50
   const cannonX = 50
   const barrelLength = 40
+  const { angleMin, angleMax, powerMin, powerMax, radiusMin, radiusMax } = CannonControlConfigs
 
-  const [angle, setAngle] = useState(45)
-  const [power, setPower] = useState(50)
-  const [projectileRadius, setRadius] = useState(6)
+  const [angle, setAngle] = useState((angleMin + angleMax) / 2)
+  const [power, setPower] = useState((powerMin + powerMax) / 2)
+  const [projectileRadius, setRadius] = useState((radiusMin + radiusMax) / 2)
   const [timeElapsed, setElapsed] = useState(0)
   const [showPath, setShowPath] = useState(false)
   const [pathPoints, setPathPoints] = useState<Array<{ x: number; y: number; xVelocity: number; yVelocity: number; time: number }>>([])

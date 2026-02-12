@@ -7,5 +7,5 @@ export const CannonControlConfigs = {
   powerMin: 0,
   powerMax: 100,
   radiusMin: 2,
-  radiusMax: 50,
+  radiusMax: 20,
 } as const
