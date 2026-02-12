@@ -9,6 +9,9 @@ interface SimulationCanvasProps {
   radius: number
   showPath?: boolean
   pathPoints?: Array<{ x: number; y: number; xVelocity: number; yVelocity: number; time: number }>
+  cannonTipX?: number
+  groundY?: number
+  transformCoordinates?: (x: number, y: number, tipX: number, ground: number) => { scaledX: number; scaledY: number }
 }
 
 export default function SimulationCanvas({
@@ -19,13 +22,16 @@ export default function SimulationCanvas({
   radius,
   showPath = false,
   pathPoints = [],
+  cannonTipX,
+  groundY: propGroundY,
+  transformCoordinates,
 }: SimulationCanvasProps) {
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null)
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null)
   // Canvas dimensions
   const canvasWidth = 800
   const canvasHeight = 600
-  const groundY = canvasHeight - 50
+  const groundY = propGroundY ?? (canvasHeight - 50)
   const cannonX = 50
   const cannonY = groundY
 
@@ -147,8 +153,8 @@ export default function SimulationCanvas({
           </g>
         )}
 
-        {/* Projectile - always show if position is set, or when flying */}
-        {(isFlying || (projectileX > 0 && projectileY > 0)) && (
+        {/* Projectile - only show when flying or path is shown */}
+        {(isFlying || showPath) && (
           <circle
             cx={projectileX}
             cy={projectileY}
@@ -159,39 +165,79 @@ export default function SimulationCanvas({
       </svg>
       
       {/* Tooltip */}
-      {showPath && hoveredPointIndex !== null && tooltipPosition && pathPoints[hoveredPointIndex] && (
-        <div
-          className="path-tooltip"
-          style={{
-            left: `${tooltipPosition.x}px`,
-            top: `${tooltipPosition.y}px`,
-          }}
-        >
-          <div className="tooltip-content">
-            <div className="tooltip-header">Path Point Data</div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">X:</span>
-              <span className="tooltip-value">{pathPoints[hoveredPointIndex].x.toFixed(1)}</span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Y:</span>
-              <span className="tooltip-value">{pathPoints[hoveredPointIndex].y.toFixed(1)}</span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Vx:</span>
-              <span className="tooltip-value">{pathPoints[hoveredPointIndex].xVelocity.toFixed(1)}</span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Vy:</span>
-              <span className="tooltip-value">{pathPoints[hoveredPointIndex].yVelocity.toFixed(1)}</span>
-            </div>
-            <div className="tooltip-row">
-              <span className="tooltip-label">Time:</span>
-              <span className="tooltip-value">{pathPoints[hoveredPointIndex].time.toFixed(2)}s</span>
+      {showPath && hoveredPointIndex !== null && tooltipPosition && pathPoints[hoveredPointIndex] && (() => {
+        const point = pathPoints[hoveredPointIndex]
+        const scaled = transformCoordinates && cannonTipX !== undefined 
+          ? transformCoordinates(point.x, point.y, cannonTipX, groundY)
+          : null
+        
+        return (
+          <div
+            className="path-tooltip"
+            style={{
+              left: `${tooltipPosition.x}px`,
+              top: `${tooltipPosition.y}px`,
+            }}
+          >
+            <div className="tooltip-content">
+              <div className="tooltip-header">Path Point Data</div>
+              {scaled ? (
+                <>
+                  <div className="tooltip-section">
+                    <div className="tooltip-section-title">Scaled Coordinates</div>
+                    <div className="tooltip-row">
+                      <span className="tooltip-label">X:</span>
+                      <span className="tooltip-value">{scaled.scaledX.toFixed(1)}</span>
+                    </div>
+                    <div className="tooltip-row">
+                      <span className="tooltip-label">Y:</span>
+                      <span className="tooltip-value">{scaled.scaledY.toFixed(1)}</span>
+                    </div>
+                  </div>
+                  <div className="tooltip-section">
+                    <div className="tooltip-section-title">Pixel Coordinates</div>
+                    <div className="tooltip-row">
+                      <span className="tooltip-label">X:</span>
+                      <span className="tooltip-value">{point.x.toFixed(1)}</span>
+                    </div>
+                    <div className="tooltip-row">
+                      <span className="tooltip-label">Y:</span>
+                      <span className="tooltip-value">{point.y.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="tooltip-section">
+                  <div className="tooltip-section-title">Coordinates</div>
+                  <div className="tooltip-row">
+                    <span className="tooltip-label">X:</span>
+                    <span className="tooltip-value">{point.x.toFixed(1)}</span>
+                  </div>
+                  <div className="tooltip-row">
+                    <span className="tooltip-label">Y:</span>
+                    <span className="tooltip-value">{point.y.toFixed(1)}</span>
+                  </div>
+                </div>
+              )}
+              <div className="tooltip-section">
+                <div className="tooltip-section-title">Velocity</div>
+                <div className="tooltip-row">
+                  <span className="tooltip-label">Vx:</span>
+                  <span className="tooltip-value">{point.xVelocity.toFixed(1)}</span>
+                </div>
+                <div className="tooltip-row">
+                  <span className="tooltip-label">Vy:</span>
+                  <span className="tooltip-value">{point.yVelocity.toFixed(1)}</span>
+                </div>
+              </div>
+              <div className="tooltip-row">
+                <span className="tooltip-label">Time:</span>
+                <span className="tooltip-value">{point.time.toFixed(2)}s</span>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

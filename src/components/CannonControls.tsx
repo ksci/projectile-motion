@@ -1,9 +1,11 @@
 import './CannonControls.css'
+import { CannonControlConfigs } from '../config'
 
 interface CannonControlsProps {
   angle: number
   power: number
   radius: number
+  config: typeof CannonControlConfigs
   onAngleChange: (angle: number) => void
   onPowerChange: (power: number) => void
   onRadiusChange: (power: number) => void
@@ -21,6 +23,7 @@ export default function CannonControls({
   angle,
   power,
   radius,
+  config,
   onAngleChange,
   onPowerChange,
   onRadiusChange,
@@ -33,6 +36,8 @@ export default function CannonControls({
   showPath = false,
   onShowPathChange,
 }: CannonControlsProps) {
+  // Unwrap config values
+  const { angleMin, angleMax, powerMin, powerMax, radiusMin, radiusMax } = config
   return (
     <div className="cannon-controls">
       <h2>Cannon Controls</h2>
@@ -44,8 +49,8 @@ export default function CannonControls({
         <input
           id="angle"
           type="range"
-          min="0"
-          max="90"
+          min={angleMin}
+          max={angleMax}
           value={angle}
           onChange={(e) => onAngleChange(Number(e.target.value))}
           disabled={disabled}
@@ -59,8 +64,8 @@ export default function CannonControls({
         <input
           id="power"
           type="range"
-          min="0"
-          max="100"
+          min={powerMin}
+          max={powerMax}
           value={power}
           onChange={(e) => onPowerChange(Number(e.target.value))}
           disabled={disabled}
@@ -75,8 +80,8 @@ export default function CannonControls({
         <input
           id="radius"
           type="range"
-          min="2"
-          max="50"
+          min={radiusMin}
+          max={radiusMax}
           value={radius}
           onChange={(e) => onRadiusChange(Number(e.target.value))}
           disabled={disabled}
