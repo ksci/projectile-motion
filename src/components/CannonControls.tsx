@@ -1,15 +1,11 @@
 import './CannonControls.css'
+import { CannonControlConfigs } from '../config'
 
 interface CannonControlsProps {
   angle: number
   power: number
   radius: number
-  angleMin: number
-  angleMax: number
-  powerMin: number
-  powerMax: number
-  radiusMin: number
-  radiusMax: number
+  config: typeof CannonControlConfigs
   onAngleChange: (angle: number) => void
   onPowerChange: (power: number) => void
   onRadiusChange: (power: number) => void
@@ -27,12 +23,7 @@ export default function CannonControls({
   angle,
   power,
   radius,
-  angleMin,
-  angleMax,
-  powerMin,
-  powerMax,
-  radiusMin,
-  radiusMax,
+  config,
   onAngleChange,
   onPowerChange,
   onRadiusChange,
@@ -45,6 +36,8 @@ export default function CannonControls({
   showPath = false,
   onShowPathChange,
 }: CannonControlsProps) {
+  // Unwrap config values
+  const { angleMin, angleMax, powerMin, powerMax, radiusMin, radiusMax } = config
   return (
     <div className="cannon-controls">
       <h2>Cannon Controls</h2>

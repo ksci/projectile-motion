@@ -2,15 +2,9 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import './App.css'
 import CannonControls from './components/CannonControls'
 import SimulationCanvas from './components/SimulationCanvas'
+import { CannonControlConfigs } from './config'
 
 function App() {
-  // Control limits
-  const ANGLE_MIN = 0
-  const ANGLE_MAX = 90
-  const POWER_MIN = 0
-  const POWER_MAX = 100
-  const RADIUS_MIN = 2
-  const RADIUS_MAX = 50
 
   // Canvas dimensions (matching SimulationCanvas)
   const canvasHeight = 600
@@ -94,33 +88,33 @@ function App() {
         case '.':
         case '>':
           // Increase radius
-          setRadius(prevRadius => Math.min(RADIUS_MAX, prevRadius + radiusStep))
+          setRadius(prevRadius => Math.min(CannonControlConfigs.radiusMax, prevRadius + radiusStep))
           event.preventDefault()
           break
         case ',':
         case '<':
           // Decrease radius
-          setRadius(prevRadius => Math.max(RADIUS_MIN, prevRadius - radiusStep))
+          setRadius(prevRadius => Math.max(CannonControlConfigs.radiusMin, prevRadius - radiusStep))
           event.preventDefault()
           break
         case 'ArrowLeft':
           // Increase angle
-          setAngle(prevAngle => Math.min(ANGLE_MAX, prevAngle + angleStep))
+          setAngle(prevAngle => Math.min(CannonControlConfigs.angleMax, prevAngle + angleStep))
           event.preventDefault()
           break
         case 'ArrowUp':
           // Increase power
-          setPower(prevPower => Math.min(POWER_MAX, prevPower + powerStep))
+          setPower(prevPower => Math.min(CannonControlConfigs.powerMax, prevPower + powerStep))
           event.preventDefault()
           break
         case 'ArrowRight':
           // Decrease angle
-          setAngle(prevAngle => Math.max(ANGLE_MIN, prevAngle - angleStep))
+          setAngle(prevAngle => Math.max(CannonControlConfigs.angleMin, prevAngle - angleStep))
           event.preventDefault()
           break
         case 'ArrowDown':
           // Decrease power
-          setPower(prevPower => Math.max(POWER_MIN, prevPower - powerStep))
+          setPower(prevPower => Math.max(CannonControlConfigs.powerMin, prevPower - powerStep))
           event.preventDefault()
           break
         case 'Enter':
@@ -231,12 +225,7 @@ function App() {
           angle={angle}
           power={power}
           radius={projectileRadius}
-          angleMin={ANGLE_MIN}
-          angleMax={ANGLE_MAX}
-          powerMin={POWER_MIN}
-          powerMax={POWER_MAX}
-          radiusMin={RADIUS_MIN}
-          radiusMax={RADIUS_MAX}
+          config={CannonControlConfigs}
           onAngleChange={setAngle}
           onPowerChange={setPower}
           onRadiusChange={setRadius}
